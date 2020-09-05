@@ -9,8 +9,15 @@ class Cart
     /** @var iterable|CartItem[] */
     private iterable $items = [];
 
+    public function getItems()
+    {
+        return $this->items;
+    }
+
     public function addItem(CartItem $cartItem)
     {
+
+
         if (null === $foundProduct = $this->findItem($cartItem)) {
             $this->items[$cartItem->getCode()->toRfc4122()] = $cartItem;
 
@@ -58,5 +65,17 @@ class Cart
     public function count()
     {
         return count($this->items);
+    }
+
+    public function getBaseCurrency(): Currency
+    {
+        return $this->baseCurrency;
+    }
+
+    public function setBaseCurrency(Currency $baseCurrency): self
+    {
+        $this->baseCurrency = $baseCurrency;
+
+        return $this;
     }
 }

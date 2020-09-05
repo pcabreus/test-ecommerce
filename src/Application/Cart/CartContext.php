@@ -1,13 +1,17 @@
 <?php
 
-namespace App\Domain\Cart;
+namespace App\Application\Cart;
 
+use App\Domain\Cart\CartCalculator;
+use App\Domain\Currency\ExchangeProvider;
 use App\Domain\Factory\CartFactory;
 use App\Domain\Factory\CartItemFactory;
 use App\Domain\Model\Cart;
+use App\Domain\Model\Currency;
 use App\Domain\Model\Product;
-use App\Domain\Model\Units;
+use App\Domain\Model\Voucher;
 use App\Domain\Rule\RuleManager;
+use Symfony\Component\HttpClient\Response\CurlResponse;
 
 class CartContext
 {
@@ -15,20 +19,47 @@ class CartContext
     private CartFactory $cartFactory;
     private CartItemFactory $cartItemFactory;
     private RuleManager $ruleManager;
+    private iterable $vouchers;
+    private CartCalculator $cartCalculator;
+    private ExchangeProvider $exchangeProvider;
+    private ?Currency $baseCurrency = null;
 
-    public function __construct(CartFactory $cartFactory, CartItemFactory $cartItemFactory, RuleManager $ruleManager)
-    {
+    public function __construct(
+        CartFactory $cartFactory,
+        CartItemFactory $cartItemFactory,
+        RuleManager $ruleManager,
+        CartCalculator $cartCalculator,
+        ExchangeProvider $exchangeProvider
+    ) {
         $this->cartFactory = $cartFactory;
         $this->cartItemFactory = $cartItemFactory;
         $this->ruleManager = $ruleManager;
-        $this->clearContext();
+        $this->cartCalculator = $cartCalculator;
+        $this->exchangeProvider = $exchangeProvider;
     }
 
-    public function clearContext(): self
+    public function clearContext(Currency $currency): self
     {
         $this->cart = $this->cartFactory->create();
+        $this->baseCurrency = $currency;
 
         return $this;
+    }
+
+    public function getCurrency()
+    {
+        return $this->baseCurrency;
+    }
+
+    public function changeCurrency(Currency $currency)
+    {
+        return $this->baseCurrency = $currency;
+    }
+
+
+    public function total()
+    {
+        return $this->cartCalculator->calculate($this->cart, $this->vouchers, $this->baseCurrency);
     }
 
     public function getCart(): Cart
@@ -36,6 +67,12 @@ class CartContext
         return $this->cart;
     }
 
+    public function addVoucher(Voucher $voucher)
+    {
+        $this->vouchers[] = $voucher;
+
+        return $this;
+    }
 
     public function addProductToCart(Product $product, $units)
     {

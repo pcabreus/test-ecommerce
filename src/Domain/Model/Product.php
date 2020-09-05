@@ -4,15 +4,19 @@
 namespace App\Domain\Model;
 
 
+use App\Domain\Model\Currency;
+
 class Product
 {
     private string $code;
     private int $basePrice = 0;
+    private Currency $currency;
 
-    public function __construct(string $code, int $basePrice)
+    public function __construct(string $code, int $basePrice, Currency $currency)
     {
         $this->code = $code;
         $this->basePrice = $basePrice;
+        $this->currency = $currency;
     }
 
     public function equals(Product $product)
@@ -40,6 +44,18 @@ class Product
     public function setBasePrice(int $basePrice): self
     {
         $this->basePrice = $basePrice;
+
+        return $this;
+    }
+
+    public function getCurrency(): \App\Domain\Model\Currency
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(\App\Domain\Model\Currency $currency): self
+    {
+        $this->currency = $currency;
 
         return $this;
     }
