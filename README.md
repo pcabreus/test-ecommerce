@@ -1,4 +1,4 @@
-# Test for Drink&Co
+# Test for Ecommerce concept
 
 ## Install the project
 
