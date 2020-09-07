@@ -5,8 +5,8 @@
 1. Clone the project and go into the root code:
 
     ```
-    ~$ git clone https://github.com/pcabreus/test-drink-co
-    ~$ cd test-drink-co
+    ~$ git clone https://github.com/pcabreus/test-ecommerce
+    ~$ cd test-ecommerce
     ```
    
 2. Run the container and go into the container:
